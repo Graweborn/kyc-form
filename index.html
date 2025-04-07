@@ -134,19 +134,12 @@
       const selfieFile = document.getElementById('selfiefile').files[0];
       if (selfieFile) obj.selfiefile = await toBase64(selfieFile);
 
-      fetch('https://script.google.com/macros/s/AKfycbye6YMewHffyj9gav3YNzzJ8UbyGycm_gJ0ahdZm2kJl6bOFNKzmyIA68FMBzA6lDGIpQ/exec', {
-        method: 'POST',
-        body: JSON.stringify(obj),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }).then(res => {
-        if (res.ok) {
-          document.getElementById('successMsg').style.display = 'block';
-          form.reset();
-        }
-      });
-    });
-  </script>
-</body>
-</html>
+      fetch('https://script.google.com/macros/s/ТВОЙ_ID/exec', {
+  method: 'POST',
+  mode: 'no-cors', // <--- ДОБАВИ ЭТУ СТРОКУ
+  body: JSON.stringify(obj),
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
