@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KYC verifikační formulář</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .success {
+      text-align: center;
+      color: green;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>KYC verifikační formulář</h1>
+    <form id="kycForm">
+      <label>Jméno a příjmení:
+        <input type="text" name="fullname" required>
+      </label>
+      <label>Datum narození:
+        <input type="date" name="birthdate" required>
+      </label>
+      <label>Státní občanství:
+        <input type="text" name="citizenship" required>
+      </label>
+      <label>Adresa bydliště:
+        <input type="text" name="address" required>
+      </label>
+      <label>Telefon:
+        <input type="tel" name="phone">
+      </label>
+      <label>E-mail:
+        <input type="email" name="email">
+      </label>
+      <label>Typ dokladu totožnosti:
+        <select name="idtype">
+          <option>Občanský průkaz</option>
+          <option>Cestovní pas</option>
+          <option>Jiný</option>
+        </select>
+      </label>
+      <label>Číslo dokladu:
+        <input type="text" name="idnumber" required>
+      </label>
+      <label>Datum vydání:
+        <input type="date" name="issuedate">
+      </label>
+      <label>Datum platnosti:
+        <input type="date" name="expirydate">
+      </label>
+      <label>Nahrát sken / foto dokladu totožnosti:
+        <input type="file" id="docfile" required>
+      </label>
+      <label>Nahrát selfie s dokladem (volitelné):
+        <input type="file" id="selfiefile">
+      </label>
+      <button type="submit">Odeslat</button>
+      <div class="success" id="successMsg" style="display:none;">
+        Děkujeme! Formulář byl úspěšně odeslán.
+      </div>
+    </form>
+  </div>
+  <script>
+    async function toBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    const form = document.getElementById('kycForm');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const obj = {};
+      for (const [key, value] of data.entries()) {
+        obj[key] = value;
+      }
+
+      const docFile = document.getElementById('docfile').files[0];
+      if (docFile) obj.docfile = await toBase64(docFile);
+
+      const selfieFile = document.getElementById('selfiefile').files[0];
+      if (selfieFile) obj.selfiefile = await toBase64(selfieFile);
+
+      fetch('https://script.google.com/macros/s/AKfycbye6YMewHffyj9gav3YNzzJ8UbyGycm_gJ0ahdZm2kJl6bOFNKzmyIA68FMBzA6lDGIpQ/exec', {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(res => {
+        if (res.ok) {
+          document.getElementById('successMsg').style.display = 'block';
+          form.reset();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
